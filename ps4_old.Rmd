@@ -1,64 +1,15 @@
 ---
-title: 'Psych 251 PS4: Simulation + Analysis'
+title: 'Psych 251 PS4: Simulation'
 author: "Mike Frank"
-date: "2019"
+date: "2018"
 output: 
   html_document:
     toc: true
 ---
 
-This is problem set #4, in which we want you to integrate your knowledge of data wrangling with some basic simulation skills. It's a short problem set to help consolidate your `ggplot2` skills and then help you get your feet wet in testing statistical concepts through "making up data" rather than consulting a textbook or doing math. 
+This is problem set #4, in which we want you to integrate your knowledge of data wrangling with some basic simulation skills. It's a short problem set to help you get your feet wet in testing statistical concepts through "making up data" rather than consulting a textbook or doing math. 
 
 For ease of reading, please separate your answers from our text by marking our text with the `>` character (indicating quotes). 
-
-# Part 1: ggplot practice
-
-This part is a warmup, it should be relatively straightforward `ggplot2` practice.
-
-Load data from Frank, Vul, Saxe (2011, Infancy), a study in which we measured infants' looking to hands in moving scenes. There were infants from 3 months all the way to about two years, and there were two movie conditions (`Faces_Medium`, in which kids played on a white background, and `Faces_Plus`, in which the backgrounds were more complex and the people in the videos were both kids and adults). An eye-tracker measured children's attention to faces. This version of the dataset only gives two conditions and only shows the amount of looking at hands (other variables were measured as well). 
-
-```{r}
-library(tidyverse)
-fvs <- read.csv("data/FVS2011-hands.csv")
-```
-
-First, use `ggplot` to plot a histogram of the ages of children in the study. NOTE: this is a repeated measures design, so you can't just take a histogram of every measurement. 
-
-```{r}
-#get histogram for only one condition since it's repeated measures
-fvsFacesMedium <- fvs %>% 
-  mutate(roundAge = factor(round(age))) %>%  #round the ages
-  filter(condition == "Faces_Plus")
-
-ggplot(fvsFacesMedium, aes(x=roundAge))+
-  geom_histogram(stat="count")+
-  xlab("Age (months)")
-
-```
-
-Second, make a scatter plot showing hand looking as a function of age and condition. Add appropriate smoothing lines. Take the time to fix the axis labels and make the plot look nice.
-
-```{r}
-
-ggplot(fvs,aes(x = age, y = hand.look, color = condition))+
-  geom_point()+
-  ylab("Proportion Looking at Hands ")+xlab("Age (months)")+
-  geom_smooth(method = 'lm', se = F)+
-  scale_color_brewer(palette = "Set1")
-
-
-```
-
-What do you conclude from this pattern of data?
-
-> Based on this pattern of data, it looks like as infants get older (especially >12 months), they spend more time looking at hands while watching more complex videos that feature both children and adults. 
-
-What statistical analyses would you perform here to quantify these differences?
-
-> To quantify these differences, I would perform a two-way ANOVA using condition and age as independent variables. Based on the scatter plot and trend lines, I would predict to see an interaction effect between age and condition on proportion looking at hands.
-
-
-# Part 2: Simulation
 
 ```{r, warning=F, message=F}
 library(tidyverse)
@@ -84,7 +35,8 @@ for (i in 1:10000){
   count <- count+1
 }
 
-count/10000 #get proportion of significant results
+count/10000
+
 
 ```
 
@@ -94,6 +46,7 @@ Next, do this using the `replicate` function:
 
 proportion<-replicate(10000, as.numeric(t.test(rnorm(30))$p.value<.05), simplify = F) #generate  list as output
 sum(unlist(proportion))/10000 #sum, and find proportion
+
 
 ```
 
@@ -127,8 +80,11 @@ double.sample <- function (originalSample,upperBound) { #allows for altering the
 Now call this function 10k times and find out what happens. 
 
 ```{r}
+
 proportion<-replicate(10000,as.numeric(double.sample(rnorm(30),.25)<.05),simplify = F)
 sum(unlist(proportion))/10000 #sum list and find proportion
+
+
 ```
 
 Is there an inflation of false positives? How bad is it?
@@ -149,6 +105,7 @@ HINT 2: You may need more samples. Find out by looking at how the results change
 
 ```{r}
 
+
 # #max p value = 0.5
 proportion1<-replicate(10000,as.numeric(double.sample(rnorm(30),.5)<.05),simplify = F)
 sum(unlist(proportion1))/10000 #sum list and find proportion
@@ -158,8 +115,9 @@ proportion2<-replicate(10000,as.numeric(double.sample(rnorm(30),.75)<.05),simpli
 sum(unlist(proportion2))/10000 #sum list and find proportion
 
 # #max p value = 1 no upper bound for pValue
-proportion3<-replicate(10000,as.numeric(double.sample(rnorm(30),1)<.05),simplify = F)
+proportion3<-replicate(10000,as.numeric(double.sample(rnorm(30),.99)<.05),simplify = F)
 sum(unlist(proportion3))/10000 #sum list and find proportion
+
 
 ```
 

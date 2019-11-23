@@ -30,11 +30,17 @@ Scatter plots are trivial, and easy to add features to. Modify this plot so that
 
 ```{r}
 
+data=diamonds
+qplot(carat,price,data=diamonds)
+
 ```
 
 Try adding clarity and cut, using shape and color as your visual variables. 
 
 ```{r}
+
+qplot(carat,price,data=diamonds,shape=clarity,color=cut)
+
 ```
 
 
@@ -46,15 +52,21 @@ sometimes easier to use and sometimes a bit more complicated. What I want to sho
 `ggplot` is the basic call, where you specify A) a dataframe and B) an aesthetic (`aes`) mapping from variables in the plot space to variables in the dataset. 
 
 ```{r}
-d <- ggplot(diamonds, aes(x=carat, y=price)) # first you set the aesthetic and dataset
+d = ggplot(diamonds, aes(x=carat, y=price)) # first you set the aesthetic and dataset
 d + geom_point() # then you add geoms
 d + geom_point(aes(colour = carat)) # and you can keep doing this to add layers to the plot
+
 ```
 
 Try writing this as a single set of additions (e.g. one line of R code, though you can put in linebreaks). This is the most common workflow for me. 
 
 
 ```{r}
+
+ ggplot(diamonds, aes(x=carat, y=price)) +  # first you set the aesthetic and dataset
+    geom_point() +  # then you add geoms
+    geom_point(aes(colour = carat))
+
 
 ```
 
@@ -65,11 +77,20 @@ Let's try out another version of the `qplot` example above. Rewrite the last qpl
 
 ```{r}
 
+ ggplot(diamonds, aes(x=carat, y=price)) +  # first you set the aesthetic and dataset
+ geom_point() +  # then you add geoms
+ geom_point(aes(colour = cut,shape = clarity))
+
 ```
 
 One of the primary benefits of `ggplot2` is the use of facets - also known as small multiples in the Tufte vocabulary. That last plot was probably hard to read. Facets could make it better. Try adding `facet_grid(x ~ y)`.  `x ~ y` means row facets are by `x`, column facets by `y`. 
 
 ```{r}
+
+ggplot(diamonds, aes(x = carat, y = price)) +  # first you set the aesthetic and dataset
+ geom_point() +  # then you add geoms
+ geom_point(aes(colour = cut)) +
+ facet_grid(cut ~ clarity)
 
 ```
 
@@ -78,6 +99,18 @@ But facets can also get overwhelming. Try to strike a good balance between color
 HINT: `facet_grid(. ~ x)` puts x on the columns, but `facet_wrap(~ x)` (no dot) *wraps* the facets. 
 
 ```{r}
+
+ggplot(diamonds, aes(x = carat, y = price)) +  # first you set the aesthetic and dataset
+ geom_point(aes(colour = clarity)) +
+  # facet_grid(cut~clarity)
+  geom_smooth(method="auto", se=TRUE) +
+  facet_wrap(~cut)
+
+# to save:
+# set plot to variable, say p
+# ggsave("Location/to/Save/file.pdf", plot = p) 
+# or pdf device. Can set height and width
+ 
 
 ```
 
@@ -91,7 +124,8 @@ Let's try adding some geoms and manipulating their parameters. One combo I reall
 ```{r}
 ggplot(diamonds, aes(x=carat, y=price)) +
   geom_point(shape = ".") +
-  facet_grid(cut ~ clarity) 
+  facet_grid(cut ~ clarity) +
+  geom_smooth(method="auto",se=FALSE)
 ```
 
 
